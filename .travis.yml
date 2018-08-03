@@ -1,0 +1,12 @@
+dist: trusty
+sudo: required
+
+language: go
+go:
+  - 1.10.3
+
+go_import_path: github.com/fuweid/bench-fmountat
+
+script: |
+  set -e
+  sudo env "PATH=$PATH" go test -v -bench=.
