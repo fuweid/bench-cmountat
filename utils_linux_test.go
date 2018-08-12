@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"testing"
 	"time"
 
@@ -120,6 +121,36 @@ func prepareOverlayNLayersData(n int) (opt *mountOpt, chdir string, cleanup clea
 
 func Test_PrepareOverlayNLayersData(t *testing.T) {
 	layerNum := 10
+
+	t.Run("by Mount directly", func(t *testing.T) {
+		opt, chdir, cleanup, err := prepareOverlayNLayersData(layerNum)
+		if err != nil {
+			t.Fatalf("failed to prepare mount data for overlay N layers: %v", err)
+		}
+		defer cleanup()
+
+		oldWd, err := os.Getwd()
+		if err != nil {
+			t.Fatalf("failed to get current working dir: %v", err)
+		}
+
+		if err := os.Chdir(chdir); err != nil {
+			t.Fatalf("failed to change current working dir before run directly mount: %v", err)
+		}
+
+		defer func() {
+			if err := os.Chdir(oldWd); err != nil {
+				t.Fatalf("failed to recover the old working dir: %v", err)
+			}
+		}()
+
+		if err := syscall.Mount(opt.source, opt.target, opt.fstype, opt.flags, opt.data); err != nil {
+			t.Fatal(err)
+		}
+
+		testFileInMount(t, opt.target)
+		umount(t, opt.target)
+	})
 
 	t.Run("by FMountat", func(t *testing.T) {
 		opt, chdir, cleanup, err := prepareOverlayNLayersData(layerNum)
