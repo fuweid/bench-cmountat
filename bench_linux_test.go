@@ -6,8 +6,8 @@ import (
 	"syscall"
 	"testing"
 
+	"github.com/containerd/containerd/sys"
 	"github.com/docker/docker/pkg/reexec"
-	"github.com/fuweid/bench-fmountat/fmountat"
 	"github.com/fuweid/bench-fmountat/rmountat"
 )
 
@@ -145,7 +145,7 @@ func benchmarkMountNLayer(b *testing.B, n int, typ benchType) {
 			}
 		case benchFMountat:
 			// run for the fork mountat
-			if err := fmountat.FMountat(cf.Fd(), opt.source, opt.target, opt.fstype, opt.flags, opt.data); err != nil {
+			if err := sys.FMountat(cf.Fd(), opt.source, opt.target, opt.fstype, opt.flags, opt.data); err != nil {
 				b.Fatal(err)
 			}
 		default:

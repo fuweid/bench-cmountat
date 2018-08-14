@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/containerd/containerd/sys"
 	"github.com/containerd/continuity/fs/fstest"
-	"github.com/fuweid/bench-fmountat/fmountat"
 	"github.com/fuweid/bench-fmountat/rmountat"
 	"golang.org/x/sys/unix"
 )
@@ -165,7 +165,7 @@ func Test_PrepareOverlayNLayersData(t *testing.T) {
 		}
 		defer cf.Close()
 
-		if err := fmountat.FMountat(cf.Fd(), opt.source, opt.target, opt.fstype, opt.flags, opt.data); err != nil {
+		if err := sys.FMountat(cf.Fd(), opt.source, opt.target, opt.fstype, opt.flags, opt.data); err != nil {
 			t.Fatal(err)
 		}
 
