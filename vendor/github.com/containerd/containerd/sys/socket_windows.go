@@ -1,3 +1,5 @@
+// +build windows
+
 /*
    Copyright The containerd Authors.
 
@@ -14,17 +16,17 @@
    limitations under the License.
 */
 
-package fmountat
+package sys
 
 import (
-	_ "unsafe" // required for go:linkname.
+	"net"
+
+	"github.com/Microsoft/go-winio"
 )
 
-//go:linkname beforeFork syscall.runtime_BeforeFork
-func beforeFork()
-
-//go:linkname afterFork syscall.runtime_AfterFork
-func afterFork()
-
-//go:linkname afterForkInChild syscall.runtime_AfterForkInChild
-func afterForkInChild()
+// GetLocalListener returns a Listernet out of a named pipe.
+// `path` must be of the form of `\\.\pipe\<pipename>`
+// (see https://msdn.microsoft.com/en-us/library/windows/desktop/aa365150)
+func GetLocalListener(path string, uid, gid int) (net.Listener, error) {
+	return winio.ListenPipe(path, nil)
+}
